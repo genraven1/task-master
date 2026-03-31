@@ -3,31 +3,26 @@ import type { Task, CreateTaskRequest, CompleteTaskResponse } from '../types';
 
 export const tasksApi = {
   getAll: async (): Promise<Task[]> => {
-    const response = await client.get<Task[]>('/tasks');
-    return response.data;
+    return client.get<Task[]>('/tasks');
   },
 
   getByType: async (type: string): Promise<Task[]> => {
-    const response = await client.get<Task[]>(`/tasks?type=${type}`);
-    return response.data;
+    return client.get<Task[]>(`/tasks?type=${type}`);
   },
 
   create: async (data: CreateTaskRequest): Promise<Task> => {
-    const response = await client.post<Task>('/tasks', data);
-    return response.data;
+    return client.post<Task>('/tasks', data);
   },
 
   update: async (id: number, data: Partial<CreateTaskRequest>): Promise<Task> => {
-    const response = await client.put<Task>(`/tasks/${id}`, data);
-    return response.data;
+    return client.put<Task>(`/tasks/${id}`, data);
   },
 
   complete: async (id: number): Promise<CompleteTaskResponse> => {
-    const response = await client.post<CompleteTaskResponse>(`/tasks/${id}/complete`);
-    return response.data;
+    return client.post<CompleteTaskResponse>(`/tasks/${id}/complete`);
   },
 
   delete: async (id: number): Promise<void> => {
-    await client.delete(`/tasks/${id}`);
+    return client.delete(`/tasks/${id}`);
   },
 };
