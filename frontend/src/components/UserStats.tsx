@@ -7,7 +7,7 @@ export default function UserStats() {
   if (!user) return null;
 
   const xpForNextLevel = user.level * 100;
-  const xpInCurrentLevel = user.xp % xpForNextLevel;
+  const xpInCurrentLevel = user.xp;
 
   return (
     <div className="bg-brand-darker border-b border-purple-900/30 px-4 py-3">

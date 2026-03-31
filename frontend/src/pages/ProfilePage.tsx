@@ -11,7 +11,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   const xpForNextLevel = user.level * 100;
-  const xpInCurrentLevel = user.xp % xpForNextLevel;
+  const xpInCurrentLevel = user.xp;
   const xpPercent = Math.round((xpInCurrentLevel / xpForNextLevel) * 100);
 
   const totalTasks = tasks?.length ?? 0;
