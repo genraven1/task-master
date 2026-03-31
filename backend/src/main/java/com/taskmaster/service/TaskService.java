@@ -1,6 +1,8 @@
 package com.taskmaster.service;
 
 import com.taskmaster.dto.TaskDTO;
+import com.taskmaster.exception.ResourceNotFoundException;
+import com.taskmaster.exception.TaskStateException;
 import com.taskmaster.model.Task;
 import com.taskmaster.model.TaskCompletion;
 import com.taskmaster.model.User;
@@ -51,7 +53,7 @@ public class TaskService {
     @Transactional
     public TaskDTO updateTask(Long taskId, Long userId, TaskDTO dto) {
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
         if (dto.getTitle() != null) task.setTitle(dto.getTitle());
         if (dto.getDescription() != null) task.setDescription(dto.getDescription());
         if (dto.getType() != null) task.setType(dto.getType());
@@ -68,7 +70,7 @@ public class TaskService {
     @Transactional
     public void deleteTask(Long taskId, Long userId) {
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
         taskCompletionRepository.deleteByTaskId(taskId);
         taskRepository.delete(task);
     }
@@ -76,12 +78,12 @@ public class TaskService {
     @Transactional
     public TaskDTO completeTask(Long taskId, Long userId) {
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if (task.getType() == Task.TaskType.TODO && task.isCompleted()) {
-            throw new RuntimeException("Task already completed");
+            throw new TaskStateException("Task already completed");
         }
 
         task.setCompleted(true);
@@ -104,12 +106,12 @@ public class TaskService {
     @Transactional
     public TaskDTO undoTask(Long taskId, Long userId) {
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if (!task.isCompleted()) {
-            throw new RuntimeException("Task is not completed");
+            throw new TaskStateException("Task is not completed");
         }
 
         task.setCompleted(false);

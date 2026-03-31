@@ -3,6 +3,7 @@
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/TaskCompletionRepository.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/UserDTO.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/TaskDTO.java
+/home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/exception/TaskStateException.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/service/JwtService.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/AuthResponse.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/controller/TaskController.java
@@ -12,10 +13,12 @@
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/model/User.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/security/UserDetailsServiceImpl.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/model/Task.java
+/home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/exception/ResourceNotFoundException.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/controller/AuthController.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/service/UserService.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/service/TaskService.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/TaskRepository.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/security/JwtAuthenticationFilter.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/UserRepository.java
+/home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/exception/GlobalExceptionHandler.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/model/TaskCompletion.java

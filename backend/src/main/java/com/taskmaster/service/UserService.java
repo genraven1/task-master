@@ -1,6 +1,7 @@
 package com.taskmaster.service;
 
 import com.taskmaster.dto.UserDTO;
+import com.taskmaster.exception.ResourceNotFoundException;
 import com.taskmaster.model.User;
 import com.taskmaster.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +16,14 @@ public class UserService {
 
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         return toDTO(user);
     }
 
     @Transactional
     public UserDTO updateUser(Long id, UserDTO dto) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
             user.setUsername(dto.getUsername());
         }
