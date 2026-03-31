@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import type { Task } from '../types';
+import type { Task, ResourceType } from '../types';
 import { useCompleteTask, useDeleteTask } from '../hooks/useTasks';
 import { useAuthStore } from '../store/authStore';
 import LevelUpToast from './LevelUpToast';
+import { resourceConfig } from './ResourceBar';
 
 interface TaskCardProps {
   task: Task;
-  onXpGained?: (xp: number, gold: number) => void;
+  onXpGained?: (xp: number, gold: number, resourceType: ResourceType, resourceGained: number) => void;
 }
 
 const difficultyConfig = {
@@ -43,7 +44,7 @@ export default function TaskCard({ task, onXpGained }: TaskCardProps) {
       if (result.leveledUp) {
         setLeveledUp(true);
       }
-      onXpGained?.(result.xpGained, result.goldGained);
+      onXpGained?.(result.xpGained, result.goldGained, result.resourceType, result.resourceGained);
     } catch (err) {
       console.error('Failed to complete task:', err);
     } finally {
@@ -123,6 +124,14 @@ export default function TaskCard({ task, onXpGained }: TaskCardProps) {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-brand-gold font-semibold">+{task.xpReward} XP</span>
                 <span className="text-xs text-yellow-500 font-semibold">+{task.goldReward}💰</span>
+                {task.resourceType && resourceConfig[task.resourceType] && (
+                  <span
+                    className="text-xs"
+                    title={`+${task.goldReward} ${resourceConfig[task.resourceType].label} for city`}
+                  >
+                    {resourceConfig[task.resourceType].icon}
+                  </span>
+                )}
                 <button
                   onClick={handleDelete}
                   className="text-gray-600 hover:text-red-400 transition-colors text-sm ml-1"

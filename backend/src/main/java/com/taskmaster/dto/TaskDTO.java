@@ -1,5 +1,6 @@
 package com.taskmaster.dto;
 
+import com.taskmaster.model.ResourceType;
 import com.taskmaster.model.Task;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ public class TaskDTO {
     private Task.Difficulty difficulty;
     private int xpReward;
     private int goldReward;
+    private ResourceType resourceType;
     private boolean completed;
     private LocalDateTime completedAt;
     private int streak;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Task } from '../types';
+import type { Task, ResourceType } from '../types';
 import TaskCard from './TaskCard';
 import AddTaskModal from './AddTaskModal';
 
@@ -7,7 +7,7 @@ interface TaskListProps {
   tasks: Task[];
   type?: 'DAILY' | 'TODO' | 'HABIT';
   isLoading?: boolean;
-  onXpGained?: (xp: number, gold: number) => void;
+  onXpGained?: (xp: number, gold: number, resourceType: ResourceType, resourceGained: number) => void;
 }
 
 export default function TaskList({ tasks, type, isLoading, onXpGained }: TaskListProps) {

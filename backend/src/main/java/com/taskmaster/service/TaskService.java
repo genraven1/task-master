@@ -1,8 +1,10 @@
 package com.taskmaster.service;
 
+import com.taskmaster.dto.CompleteTaskResponseDTO;
 import com.taskmaster.dto.TaskDTO;
 import com.taskmaster.exception.ResourceNotFoundException;
 import com.taskmaster.exception.TaskStateException;
+import com.taskmaster.model.ResourceType;
 import com.taskmaster.model.Task;
 import com.taskmaster.model.TaskCompletion;
 import com.taskmaster.model.User;
@@ -25,6 +27,8 @@ public class TaskService {
     private final TaskCompletionRepository taskCompletionRepository;
     private final UserRepository userRepository;
     private final GamificationService gamificationService;
+    private final CityService cityService;
+    private final UserService userService;
 
     public List<TaskDTO> getTasksForUser(Long userId) {
         return taskRepository.findByUserId(userId)
@@ -36,6 +40,7 @@ public class TaskService {
     @Transactional
     public TaskDTO createTask(Long userId, TaskDTO dto) {
         Task.Difficulty difficulty = dto.getDifficulty() != null ? dto.getDifficulty() : Task.Difficulty.EASY;
+        ResourceType resourceType = dto.getResourceType() != null ? dto.getResourceType() : ResourceType.GOLD;
         Task task = Task.builder()
                 .userId(userId)
                 .title(dto.getTitle())
@@ -44,6 +49,7 @@ public class TaskService {
                 .difficulty(difficulty)
                 .xpReward(gamificationService.getXpReward(difficulty))
                 .goldReward(gamificationService.getGoldReward(difficulty))
+                .resourceType(resourceType)
                 .dueDate(dto.getDueDate())
                 .tags(dto.getTags())
                 .build();
@@ -62,6 +68,9 @@ public class TaskService {
             task.setXpReward(gamificationService.getXpReward(dto.getDifficulty()));
             task.setGoldReward(gamificationService.getGoldReward(dto.getDifficulty()));
         }
+        if (dto.getResourceType() != null) {
+            task.setResourceType(dto.getResourceType());
+        }
         if (dto.getDueDate() != null) task.setDueDate(dto.getDueDate());
         if (dto.getTags() != null) task.setTags(dto.getTags());
         return toDTO(taskRepository.save(task));
@@ -76,7 +85,7 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskDTO completeTask(Long taskId, Long userId) {
+    public CompleteTaskResponseDTO completeTask(Long taskId, Long userId) {
         Task task = taskRepository.findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
         User user = userRepository.findById(userId)
@@ -98,9 +107,27 @@ public class TaskService {
                 .build();
         taskCompletionRepository.save(completion);
 
-        gamificationService.awardXpAndGold(user, task.getXpReward(), task.getGoldReward());
+        int levelBefore = user.getLevel();
+        User updatedUser = gamificationService.awardXpAndGold(user, task.getXpReward(), task.getGoldReward());
+        boolean leveledUp = updatedUser.getLevel() > levelBefore;
 
-        return toDTO(task);
+        // Contribute resource to city (no-op if user is not in a city)
+        ResourceType resourceType = task.getResourceType() != null ? task.getResourceType() : ResourceType.GOLD;
+        int resourceGained = task.getGoldReward();
+        int cityContributed = cityService.contributeResource(userId, resourceType, resourceGained);
+        Long cityId = cityContributed > 0 ? cityService.getCityIdForUser(userId) : null;
+
+        return CompleteTaskResponseDTO.builder()
+                .task(toDTO(task))
+                .user(userService.toDTO(updatedUser))
+                .xpGained(task.getXpReward())
+                .goldGained(task.getGoldReward())
+                .leveledUp(leveledUp)
+                .resourceType(resourceType)
+                .resourceGained(resourceGained)
+                .cityId(cityId)
+                .cityResourceContributed(cityContributed)
+                .build();
     }
 
     @Transactional
@@ -134,6 +161,7 @@ public class TaskService {
                 .difficulty(task.getDifficulty())
                 .xpReward(task.getXpReward())
                 .goldReward(task.getGoldReward())
+                .resourceType(task.getResourceType())
                 .completed(task.isCompleted())
                 .completedAt(task.getCompletedAt())
                 .streak(task.getStreak())

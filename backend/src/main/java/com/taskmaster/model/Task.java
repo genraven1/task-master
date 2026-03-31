@@ -39,6 +39,10 @@ public class Task {
     @Builder.Default
     private int goldReward = 5;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private ResourceType resourceType = ResourceType.GOLD;
+
     @Builder.Default
     private boolean completed = false;
 

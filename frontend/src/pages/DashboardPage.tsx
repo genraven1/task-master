@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useAllTasks } from '../hooks/useTasks';
+import { useMyCity } from '../hooks/useCity';
 import TaskList from '../components/TaskList';
+import CityProgress from '../components/CityProgress';
 import { useAuthStore } from '../store/authStore';
+import type { ResourceType } from '../types';
 
 type TabType = 'ALL' | 'DAILY' | 'TODO' | 'HABIT';
 
@@ -14,8 +17,9 @@ const tabs: { key: TabType; label: string; icon: string }[] = [
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('ALL');
-  const [xpToast, setXpToast] = useState<{ xp: number; gold: number } | null>(null);
+  const [xpToast, setXpToast] = useState<{ xp: number; gold: number; resourceType: ResourceType; resourceGained: number } | null>(null);
   const { data: tasks, isLoading } = useAllTasks();
+  const { data: city } = useMyCity();
   const { user } = useAuthStore();
 
   const filteredTasks = tasks
@@ -24,8 +28,8 @@ export default function DashboardPage() {
       : tasks.filter((t) => t.type === activeTab)
     : [];
 
-  const handleXpGained = (xp: number, gold: number) => {
-    setXpToast({ xp, gold });
+  const handleXpGained = (xp: number, gold: number, resourceType: ResourceType, resourceGained: number) => {
+    setXpToast({ xp, gold, resourceType, resourceGained });
     setTimeout(() => setXpToast(null), 2500);
   };
 
@@ -37,6 +41,9 @@ export default function DashboardPage() {
           <div className="bg-brand-card border border-brand-gold/30 rounded-2xl px-4 py-3 shadow-2xl">
             <div className="text-brand-gold font-bold text-sm">+{xpToast.xp} XP</div>
             <div className="text-yellow-500 text-xs">+{xpToast.gold} 💰 Gold</div>
+            {xpToast.resourceGained > 0 && (
+              <div className="text-green-400 text-xs">+{xpToast.resourceGained} for city 🏰</div>
+            )}
           </div>
         </div>
       )}
@@ -50,6 +57,13 @@ export default function DashboardPage() {
           {filteredTasks.filter(t => !t.completed).length} active quests
         </p>
       </div>
+
+      {/* City progress (compact) */}
+      {city && (
+        <div className="px-4 pb-2">
+          <CityProgress city={city} compact />
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="px-4 pb-3">

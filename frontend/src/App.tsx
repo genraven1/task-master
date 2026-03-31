@@ -8,6 +8,7 @@ import HabitsPage from './pages/HabitsPage';
 import DailiesPage from './pages/DailiesPage';
 import TodosPage from './pages/TodosPage';
 import ProfilePage from './pages/ProfilePage';
+import CityPage from './pages/CityPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/habits" element={<HabitsPage />} />
             <Route path="/dailies" element={<DailiesPage />} />
             <Route path="/todos" element={<TodosPage />} />
+            <Route path="/city" element={<CityPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

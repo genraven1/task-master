@@ -4,6 +4,7 @@ const navItems = [
   { path: '/habits', label: 'Habits', icon: '🔄' },
   { path: '/dailies', label: 'Dailies', icon: '📅' },
   { path: '/todos', label: 'Todos', icon: '✅' },
+  { path: '/city', label: 'City', icon: '🏰' },
   { path: '/profile', label: 'Profile', icon: '👤' },
 ];
 

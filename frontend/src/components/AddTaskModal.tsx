@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCreateTask } from '../hooks/useTasks';
-import type { CreateTaskRequest } from '../types';
+import type { CreateTaskRequest, ResourceType } from '../types';
+import { resourceConfig } from './ResourceBar';
 
 interface AddTaskModalProps {
   defaultType?: 'DAILY' | 'TODO' | 'HABIT';
@@ -13,6 +14,7 @@ export default function AddTaskModal({ defaultType = 'TODO', onClose }: AddTaskM
     description: '',
     type: defaultType,
     difficulty: 'EASY',
+    resourceType: 'GOLD',
     dueDate: '',
     tags: '',
   });
@@ -32,6 +34,7 @@ export default function AddTaskModal({ defaultType = 'TODO', onClose }: AddTaskM
         difficulty: form.difficulty,
       };
       if (form.description?.trim()) payload.description = form.description.trim();
+      if (form.resourceType) payload.resourceType = form.resourceType;
       if (form.dueDate) payload.dueDate = form.dueDate;
       if (form.tags?.trim()) payload.tags = form.tags.trim();
 
@@ -145,6 +148,30 @@ export default function AddTaskModal({ defaultType = 'TODO', onClose }: AddTaskM
               />
             </div>
           )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">City Resource</label>
+            <div className="grid grid-cols-4 gap-2">
+              {(Object.keys(resourceConfig) as ResourceType[]).map((rt) => {
+                const cfg = resourceConfig[rt];
+                return (
+                  <button
+                    key={rt}
+                    type="button"
+                    onClick={() => setForm({ ...form, resourceType: rt })}
+                    className={`py-2 rounded-xl border text-sm font-semibold transition-all flex flex-col items-center gap-0.5 ${
+                      form.resourceType === rt
+                        ? 'bg-brand-card border-brand-gold text-white'
+                        : 'border-purple-800/50 text-gray-400 hover:border-purple-600'
+                    }`}
+                  >
+                    <span className="text-base">{cfg.icon}</span>
+                    <span className="text-[10px]">{cfg.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1.5">Tags</label>

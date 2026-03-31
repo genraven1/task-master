@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useTasks } from '../hooks/useTasks';
 import TaskList from '../components/TaskList';
+import type { ResourceType } from '../types';
 
 export default function DailiesPage() {
-  const [xpToast, setXpToast] = useState<{ xp: number; gold: number } | null>(null);
+  const [xpToast, setXpToast] = useState<{ xp: number; gold: number; resourceType: ResourceType; resourceGained: number } | null>(null);
   const { data: tasks, isLoading } = useTasks('DAILY');
 
-  const handleXpGained = (xp: number, gold: number) => {
-    setXpToast({ xp, gold });
+  const handleXpGained = (xp: number, gold: number, resourceType: ResourceType, resourceGained: number) => {
+    setXpToast({ xp, gold, resourceType, resourceGained });
     setTimeout(() => setXpToast(null), 2500);
   };
 
@@ -18,6 +19,9 @@ export default function DailiesPage() {
           <div className="bg-brand-card border border-brand-gold/30 rounded-2xl px-4 py-3 shadow-2xl">
             <div className="text-brand-gold font-bold text-sm">+{xpToast.xp} XP</div>
             <div className="text-yellow-500 text-xs">+{xpToast.gold} 💰 Gold</div>
+            {xpToast.resourceGained > 0 && (
+              <div className="text-green-400 text-xs">+{xpToast.resourceGained} for city 🏰</div>
+            )}
           </div>
         </div>
       )}
