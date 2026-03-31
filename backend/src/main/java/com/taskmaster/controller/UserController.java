@@ -1,6 +1,7 @@
 package com.taskmaster.controller;
 
 import com.taskmaster.dto.UserDTO;
+import com.taskmaster.exception.ResourceNotFoundException;
 import com.taskmaster.model.User;
 import com.taskmaster.repository.UserRepository;
 import com.taskmaster.service.UserService;
@@ -21,7 +22,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getMe(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return ResponseEntity.ok(userService.toDTO(user));
     }
 
@@ -30,7 +31,7 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody UserDTO dto) {
         User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return ResponseEntity.ok(userService.updateUser(user.getId(), dto));
     }
 }

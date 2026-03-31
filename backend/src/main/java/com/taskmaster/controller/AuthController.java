@@ -2,6 +2,7 @@ package com.taskmaster.controller;
 
 import com.taskmaster.dto.AuthRequest;
 import com.taskmaster.dto.AuthResponse;
+import com.taskmaster.exception.ResourceNotFoundException;
 import com.taskmaster.model.User;
 import com.taskmaster.repository.UserRepository;
 import com.taskmaster.service.JwtService;
@@ -62,7 +63,7 @@ public class AuthController {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         String token = jwtService.generateToken(userDetails);
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return ResponseEntity.ok(AuthResponse.builder()
                 .token(token)
                 .user(userService.toDTO(user))

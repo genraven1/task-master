@@ -1,6 +1,7 @@
 package com.taskmaster.controller;
 
 import com.taskmaster.dto.TaskDTO;
+import com.taskmaster.exception.ResourceNotFoundException;
 import com.taskmaster.model.User;
 import com.taskmaster.repository.UserRepository;
 import com.taskmaster.service.TaskService;
@@ -22,7 +23,7 @@ public class TaskController {
 
     private Long getUserId(UserDetails userDetails) {
         return userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
                 .getId();
     }
 
