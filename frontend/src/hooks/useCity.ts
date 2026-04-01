@@ -7,6 +7,7 @@ export const useMyCity = () => {
     queryFn: citiesApi.getMyCity,
     staleTime: 30_000,
     retry: false, // 404 = not in a city – don't spam retries
+    refetchOnWindowFocus: false, // city changes only via explicit mutations
   });
 };
 

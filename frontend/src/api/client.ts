@@ -1,7 +1,9 @@
+import { useAuthStore } from '../store/authStore';
+
 const BASE_URL = 'http://localhost:8080/api';
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('token');
+  const token = useAuthStore.getState().token;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -15,7 +17,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
 
   if (response.status === 401) {
-    localStorage.removeItem('token');
+    useAuthStore.getState().logout();
     window.location.href = '/login';
     throw new Error('Unauthorized');
   }
