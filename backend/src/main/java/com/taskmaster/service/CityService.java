@@ -3,21 +3,25 @@ package com.taskmaster.service;
 import com.taskmaster.dto.BuildingDTO;
 import com.taskmaster.dto.CityDTO;
 import com.taskmaster.dto.CityMemberDTO;
+import com.taskmaster.dto.ExpeditionDTO;
 import com.taskmaster.exception.ResourceNotFoundException;
 import com.taskmaster.exception.TaskStateException;
 import com.taskmaster.model.Building;
 import com.taskmaster.model.City;
 import com.taskmaster.model.CityMembership;
+import com.taskmaster.model.Expedition;
 import com.taskmaster.model.ResourceType;
 import com.taskmaster.model.User;
 import com.taskmaster.repository.BuildingRepository;
 import com.taskmaster.repository.CityMembershipRepository;
 import com.taskmaster.repository.CityRepository;
+import com.taskmaster.repository.ExpeditionRepository;
 import com.taskmaster.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +35,7 @@ public class CityService {
     private final CityMembershipRepository cityMembershipRepository;
     private final BuildingRepository buildingRepository;
     private final UserRepository userRepository;
+    private final ExpeditionRepository expeditionRepository;
 
     @Transactional
     public CityDTO createCity(Long userId, String cityName) {
@@ -165,6 +170,94 @@ public class CityService {
                 .orElse(null);
     }
 
+    // ── Expedition methods ────────────────────────────────────────────────────
+
+    /**
+     * Launches a new expedition on behalf of the given user.
+     * A user may only have one ACTIVE expedition at a time within their city.
+     * Rewards are pre-calculated at launch so the player knows what to expect.
+     */
+    @Transactional
+    public ExpeditionDTO launchExpedition(Long userId, Expedition.ExpeditionType type,
+                                          Expedition.ExpeditionDuration duration) {
+        CityMembership membership = cityMembershipRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User is not a member of any city"));
+        Long cityId = membership.getCityId();
+
+        if (expeditionRepository.existsByCityIdAndLaunchedByUserIdAndStatus(
+                cityId, userId, Expedition.Status.ACTIVE)) {
+            throw new TaskStateException("You already have an active expedition");
+        }
+
+        City city = cityRepository.findById(cityId)
+                .orElseThrow(() -> new ResourceNotFoundException("City not found"));
+
+        int multiplier = duration.getMultiplier();
+        int resourceReward = city.getLevel() * 15 * multiplier;
+        int smallReward   = city.getLevel() * multiplier;
+
+        Expedition.ExpeditionBuilder builder = Expedition.builder()
+                .cityId(cityId)
+                .launchedByUserId(userId)
+                .expeditionType(type)
+                .duration(duration)
+                .completesAt(LocalDateTime.now().plusMinutes(duration.getMinutes()));
+
+        switch (type) {
+            case FORAGING       -> builder.rewardFood(resourceReward);
+            case LOGGING        -> builder.rewardWood(resourceReward);
+            case MINING         -> builder.rewardStone(resourceReward);
+            case TREASURY_RAID  -> builder.rewardGold(resourceReward);
+            case RECRUITMENT    -> builder.rewardCitizens(smallReward);
+            case CULTURAL_VOYAGE -> builder.rewardCulture(smallReward);
+        }
+
+        return toExpeditionDTO(expeditionRepository.save(builder.build()));
+    }
+
+    /**
+     * Claims the rewards of a completed expedition and credits them to the city.
+     */
+    @Transactional
+    public ExpeditionDTO claimExpedition(Long userId, Long expeditionId) {
+        CityMembership membership = cityMembershipRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User is not a member of any city"));
+
+        Expedition expedition = expeditionRepository
+                .findByIdAndCityId(expeditionId, membership.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Expedition not found"));
+
+        if (expedition.getStatus() == Expedition.Status.CLAIMED) {
+            throw new TaskStateException("Expedition already claimed");
+        }
+        if (LocalDateTime.now().isBefore(expedition.getCompletesAt())) {
+            throw new TaskStateException("Expedition not yet complete");
+        }
+
+        City city = cityRepository.findById(membership.getCityId())
+                .orElseThrow(() -> new ResourceNotFoundException("City not found"));
+
+        city.setFood(city.getFood() + expedition.getRewardFood());
+        city.setWood(city.getWood() + expedition.getRewardWood());
+        city.setStone(city.getStone() + expedition.getRewardStone());
+        city.setGold(city.getGold() + expedition.getRewardGold());
+        city.setPopulation(city.getPopulation() + expedition.getRewardCitizens());
+        city.setCulture(city.getCulture() + expedition.getRewardCulture());
+        cityRepository.save(city);
+
+        expedition.setStatus(Expedition.Status.CLAIMED);
+        expeditionRepository.save(expedition);
+
+        return toExpeditionDTO(expedition);
+    }
+
+    /** Returns all expeditions for the city the user belongs to. */
+    public List<ExpeditionDTO> getExpeditionsForCity(Long userId) {
+        CityMembership membership = cityMembershipRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User is not a member of any city"));
+        return fetchExpeditionDTOs(membership.getCityId());
+    }
+
     // ── helpers ─────────────────────────────────────────────────────────────
 
     private void addResourceToCity(City city, ResourceType rt, int amount) {
@@ -205,6 +298,8 @@ public class CityService {
                 .wood(city.getWood())
                 .stone(city.getStone())
                 .gold(city.getGold())
+                .population(city.getPopulation())
+                .culture(city.getCulture())
                 .createdAt(city.getCreatedAt());
 
         if (includeDetails) {
@@ -219,6 +314,9 @@ public class CityService {
                     .map(this::toMemberDTO)
                     .collect(Collectors.toList());
             builder.members(memberDTOs);
+
+            List<ExpeditionDTO> expeditionDTOs = fetchExpeditionDTOs(city.getId());
+            builder.expeditions(expeditionDTOs);
         }
 
         return builder.build();
@@ -236,6 +334,31 @@ public class CityService {
                 .progressRequired(b.getProgressRequired())
                 .dailyProduction(b.getDailyProduction())
                 .builtAt(b.getBuiltAt())
+                .build();
+    }
+
+    public ExpeditionDTO toExpeditionDTO(Expedition e) {
+        String launchedByUsername = userRepository.findById(e.getLaunchedByUserId())
+                .map(User::getUsername)
+                .orElse("Unknown");
+        return ExpeditionDTO.builder()
+                .id(e.getId())
+                .cityId(e.getCityId())
+                .launchedByUserId(e.getLaunchedByUserId())
+                .launchedByUsername(launchedByUsername)
+                .expeditionType(e.getExpeditionType())
+                .name(getExpeditionName(e.getExpeditionType()))
+                .icon(getExpeditionIcon(e.getExpeditionType()))
+                .duration(e.getDuration())
+                .status(e.getStatus())
+                .launchedAt(e.getLaunchedAt())
+                .completesAt(e.getCompletesAt())
+                .rewardFood(e.getRewardFood())
+                .rewardWood(e.getRewardWood())
+                .rewardStone(e.getRewardStone())
+                .rewardGold(e.getRewardGold())
+                .rewardCitizens(e.getRewardCitizens())
+                .rewardCulture(e.getRewardCulture())
                 .build();
     }
 
@@ -275,4 +398,34 @@ public class CityService {
             case TREASURY -> "🏦";
         };
     }
+
+    private List<ExpeditionDTO> fetchExpeditionDTOs(Long cityId) {
+        return expeditionRepository.findByCityIdOrderByLaunchedAtDesc(cityId)
+                .stream()
+                .map(this::toExpeditionDTO)
+                .collect(Collectors.toList());
+    }
+
+    private static String getExpeditionName(Expedition.ExpeditionType type) {
+        return switch (type) {
+            case FORAGING        -> "Foraging";
+            case LOGGING         -> "Logging";
+            case MINING          -> "Mining";
+            case TREASURY_RAID   -> "Treasury Raid";
+            case RECRUITMENT     -> "Recruitment";
+            case CULTURAL_VOYAGE -> "Cultural Voyage";
+        };
+    }
+
+    private static String getExpeditionIcon(Expedition.ExpeditionType type) {
+        return switch (type) {
+            case FORAGING        -> "🌿";
+            case LOGGING         -> "🪓";
+            case MINING          -> "⛏️";
+            case TREASURY_RAID   -> "💰";
+            case RECRUITMENT     -> "👥";
+            case CULTURAL_VOYAGE -> "🎭";
+        };
+    }
 }
+

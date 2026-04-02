@@ -96,8 +96,41 @@ export interface City {
   wood: number;
   stone: number;
   gold: number;
+  population: number;
+  culture: number;
   createdAt: string;
   buildings: Building[];
   members: CityMember[];
+  expeditions: Expedition[];
+}
+
+export type ExpeditionType =
+  | 'FORAGING'
+  | 'LOGGING'
+  | 'MINING'
+  | 'TREASURY_RAID'
+  | 'RECRUITMENT'
+  | 'CULTURAL_VOYAGE';
+
+export type ExpeditionDuration = 'SHORT' | 'MEDIUM' | 'LONG';
+
+export interface Expedition {
+  id: number;
+  cityId: number;
+  launchedByUserId: number;
+  launchedByUsername: string;
+  expeditionType: ExpeditionType;
+  name: string;
+  icon: string;
+  duration: ExpeditionDuration;
+  status: 'ACTIVE' | 'CLAIMED';
+  launchedAt: string;
+  completesAt: string;
+  rewardFood: number;
+  rewardWood: number;
+  rewardStone: number;
+  rewardGold: number;
+  rewardCitizens: number;
+  rewardCulture: number;
 }
 

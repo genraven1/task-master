@@ -3,6 +3,7 @@ import { useMyCity, useCreateCity, useJoinCity, useLeaveCity } from '../hooks/us
 import { useAuthStore } from '../store/authStore';
 import BuildingCard from '../components/BuildingCard';
 import ResourceBar from '../components/ResourceBar';
+import ExpeditionPanel from '../components/ExpeditionPanel';
 import type { ResourceType } from '../types';
 
 export default function CityPage() {
@@ -194,6 +195,29 @@ export default function CityPage() {
             <BuildingCard key={b.id} building={b} />
           ))}
         </div>
+      </div>
+
+      {/* Population & Culture */}
+      <div className="card grid grid-cols-2 gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">👥</span>
+          <div>
+            <p className="text-gray-400 text-xs">Population</p>
+            <p className="text-white font-bold">{city.population ?? 0}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🎭</span>
+          <div>
+            <p className="text-gray-400 text-xs">Culture</p>
+            <p className="text-white font-bold">{city.culture ?? 0}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Expeditions */}
+      <div className="card">
+        <ExpeditionPanel city={city} />
       </div>
 
       {/* My contribution */}

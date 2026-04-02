@@ -18,7 +18,10 @@ public class CityDTO {
     private int wood;
     private int stone;
     private int gold;
+    private int population;
+    private int culture;
     private LocalDateTime createdAt;
     private List<BuildingDTO> buildings;
     private List<CityMemberDTO> members;
+    private List<ExpeditionDTO> expeditions;
 }

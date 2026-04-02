@@ -39,6 +39,14 @@ public class City {
     @Builder.Default
     private int gold = 0;
 
+    /** Number of NPC inhabitants brought back by Recruitment expeditions. */
+    @Builder.Default
+    private int population = 0;
+
+    /** Cultural points accumulated through Cultural Voyage expeditions. */
+    @Builder.Default
+    private int culture = 0;
+
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 }

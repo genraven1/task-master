@@ -1,5 +1,5 @@
 import client from './client';
-import type { City } from '../types';
+import type { City, Expedition, ExpeditionType, ExpeditionDuration } from '../types';
 
 export const citiesApi = {
   getMyCity: async (): Promise<City> => {
@@ -20,5 +20,17 @@ export const citiesApi = {
 
   leaveCity: async (): Promise<void> => {
     return client.delete('/cities/me');
+  },
+
+  getExpeditions: async (): Promise<Expedition[]> => {
+    return client.get<Expedition[]>('/cities/me/expeditions');
+  },
+
+  launchExpedition: async (expeditionType: ExpeditionType, duration: ExpeditionDuration): Promise<Expedition> => {
+    return client.post<Expedition>('/cities/me/expeditions', { expeditionType, duration });
+  },
+
+  claimExpedition: async (expeditionId: number): Promise<Expedition> => {
+    return client.post<Expedition>(`/cities/me/expeditions/${expeditionId}/claim`, {});
   },
 };

@@ -1,7 +1,9 @@
 package com.taskmaster.controller;
 
 import com.taskmaster.dto.CityDTO;
+import com.taskmaster.dto.ExpeditionDTO;
 import com.taskmaster.exception.ResourceNotFoundException;
+import com.taskmaster.model.Expedition;
 import com.taskmaster.repository.UserRepository;
 import com.taskmaster.service.CityService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -68,4 +71,44 @@ public class CityController {
         cityService.leaveCity(getUserId(userDetails));
         return ResponseEntity.noContent().build();
     }
+
+    // ── Expedition endpoints ─────────────────────────────────────────────────
+
+    /** List all expeditions for the authenticated user's city. */
+    @GetMapping("/me/expeditions")
+    public ResponseEntity<List<ExpeditionDTO>> getExpeditions(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(cityService.getExpeditionsForCity(getUserId(userDetails)));
+    }
+
+    /**
+     * Launch a new expedition.
+     * Body: { "expeditionType": "FORAGING", "duration": "SHORT" }
+     */
+    @PostMapping("/me/expeditions")
+    public ResponseEntity<ExpeditionDTO> launchExpedition(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, String> body) {
+        String typeStr     = body.get("expeditionType");
+        String durationStr = body.get("duration");
+        if (typeStr == null || durationStr == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            Expedition.ExpeditionType type = Expedition.ExpeditionType.valueOf(typeStr);
+            Expedition.ExpeditionDuration duration = Expedition.ExpeditionDuration.valueOf(durationStr);
+            return ResponseEntity.ok(cityService.launchExpedition(getUserId(userDetails), type, duration));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /** Claim the rewards of a completed expedition. */
+    @PostMapping("/me/expeditions/{expeditionId}/claim")
+    public ResponseEntity<ExpeditionDTO> claimExpedition(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long expeditionId) {
+        return ResponseEntity.ok(cityService.claimExpedition(getUserId(userDetails), expeditionId));
+    }
 }
+

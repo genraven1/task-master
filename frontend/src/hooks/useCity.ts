@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { citiesApi } from '../api/cities';
+import type { ExpeditionType, ExpeditionDuration } from '../types';
 
 export const useMyCity = () => {
   return useQuery({
@@ -35,6 +36,27 @@ export const useLeaveCity = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: citiesApi.leaveCity,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['city'] });
+    },
+  });
+};
+
+export const useLaunchExpedition = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ expeditionType, duration }: { expeditionType: ExpeditionType; duration: ExpeditionDuration }) =>
+      citiesApi.launchExpedition(expeditionType, duration),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['city'] });
+    },
+  });
+};
+
+export const useClaimExpedition = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (expeditionId: number) => citiesApi.claimExpedition(expeditionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['city'] });
     },

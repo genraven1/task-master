@@ -2,6 +2,7 @@
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/UserDTO.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/exception/TaskStateException.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/AuthResponse.java
+/home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/model/Expedition.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/controller/UserController.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/model/ResourceType.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/CityRepository.java
@@ -21,7 +22,9 @@
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/TaskCompletionRepository.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/CityDTO.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/TaskDTO.java
+/home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/ExpeditionDTO.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/service/JwtService.java
+/home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/ExpeditionRepository.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/controller/TaskController.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/CityMembershipRepository.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/TaskMasterApplication.java
