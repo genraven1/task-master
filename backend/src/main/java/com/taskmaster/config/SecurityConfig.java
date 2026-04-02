@@ -56,17 +56,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Accept requests from localhost and private LAN address ranges (RFC-1918).
-        // allowedOriginPatterns supports credentials (unlike setAllowedOrigins("*")).
-        // NOTE: This app is intended for local network use only. Do NOT expose the
-        // backend port to the public internet without adding proper origin restrictions.
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "http://10.*",
-                "http://172.1[6-9].*", "http://172.2[0-9].*", "http://172.3[0-1].*",
-                "http://192.168.*"
-        ));
+        // Allow any origin so the app works from any device on a local network.
+        // setAllowedOriginPatterns("*") (unlike setAllowedOrigins("*")) is fully
+        // compatible with allowCredentials(true): Spring echoes back the specific
+        // request origin rather than sending a literal "*".
+        // NOTE: This app is designed for local network use only. Do NOT expose either
+        // server port to the public internet without adding explicit origin restrictions.
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
