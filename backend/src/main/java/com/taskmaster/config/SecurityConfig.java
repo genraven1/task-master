@@ -56,7 +56,17 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000"));
+        // Accept requests from localhost and private LAN address ranges (RFC-1918).
+        // allowedOriginPatterns supports credentials (unlike setAllowedOrigins("*")).
+        // NOTE: This app is intended for local network use only. Do NOT expose the
+        // backend port to the public internet without adding proper origin restrictions.
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "http://10.*",
+                "http://172.1[6-9].*", "http://172.2[0-9].*", "http://172.3[0-1].*",
+                "http://192.168.*"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

@@ -1,6 +1,9 @@
 import { useAuthStore } from '../store/authStore';
 
-const BASE_URL = 'http://localhost:8080/api';
+// In dev the Vite proxy forwards /api → localhost:8080.
+// For a production build served separately, set VITE_API_URL to the backend origin
+// e.g. VITE_API_URL=http://192.168.1.100:8080/api npm run build
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api';
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().token;
