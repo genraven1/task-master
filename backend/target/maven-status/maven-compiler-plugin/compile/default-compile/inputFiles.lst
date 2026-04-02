@@ -10,6 +10,7 @@
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/BuildingDTO.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/controller/AuthController.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/service/UserService.java
+/home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/service/BuildingProductionScheduler.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/service/TaskService.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/repository/TaskRepository.java
 /home/runner/work/task-master/task-master/backend/src/main/java/com/taskmaster/dto/CompleteTaskResponseDTO.java

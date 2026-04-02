@@ -17,5 +17,6 @@ public class BuildingDTO {
     private int level;
     private int progress;
     private int progressRequired;
+    private int dailyProduction;
     private LocalDateTime builtAt;
 }

@@ -69,6 +69,7 @@ export interface Building {
   level: number;
   progress: number;
   progressRequired: number;
+  dailyProduction: number;
 }
 
 export interface CityMember {

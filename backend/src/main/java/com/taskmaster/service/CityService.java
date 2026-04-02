@@ -144,6 +144,21 @@ public class CityService {
         return cityMembershipRepository.existsByUserId(userId);
     }
 
+    /**
+     * Credits each building's daily passive production to the matching city
+     * resource pool. Called by the scheduler once per day for every city.
+     */
+    @Transactional
+    public void applyDailyProduction(Long cityId) {
+        City city = cityRepository.findById(cityId)
+                .orElseThrow(() -> new ResourceNotFoundException("City not found with id: " + cityId));
+        buildingRepository.findByCityId(cityId).forEach(building -> {
+            ResourceType rt = Building.getResourceType(building.getBuildingType());
+            addResourceToCity(city, rt, building.getDailyProduction());
+        });
+        cityRepository.save(city);
+    }
+
     public Long getCityIdForUser(Long userId) {
         return cityMembershipRepository.findByUserId(userId)
                 .map(CityMembership::getCityId)
@@ -219,6 +234,7 @@ public class CityService {
                 .level(b.getLevel())
                 .progress(b.getProgress())
                 .progressRequired(b.getProgressRequired())
+                .dailyProduction(b.getDailyProduction())
                 .builtAt(b.getBuiltAt())
                 .build();
     }

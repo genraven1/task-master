@@ -7,6 +7,13 @@ interface BuildingCardProps {
 
 const MAX_LEVEL = 5;
 
+const RESOURCE_ICON: Record<Building['buildingType'], string> = {
+  FARM: '🌾',
+  LUMBERMILL: '🪵',
+  QUARRY: '🪨',
+  TREASURY: '💰',
+};
+
 export default function BuildingCard({ building }: BuildingCardProps) {
   const isMaxed = building.level >= MAX_LEVEL;
 
@@ -28,6 +35,12 @@ export default function BuildingCard({ building }: BuildingCardProps) {
             />
           ))}
         </div>
+      </div>
+
+      {/* Daily passive production badge */}
+      <div className="flex items-center gap-1 bg-brand-darker rounded-lg px-2 py-1">
+        <span className="text-xs">{RESOURCE_ICON[building.buildingType]}</span>
+        <span className="text-xs text-green-400 font-semibold">+{building.dailyProduction}/day</span>
       </div>
 
       {!isMaxed && (

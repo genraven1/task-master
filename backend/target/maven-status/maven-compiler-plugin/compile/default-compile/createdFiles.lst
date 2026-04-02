@@ -10,6 +10,7 @@ com/taskmaster/model/TaskCompletion.class
 com/taskmaster/model/Task.class
 com/taskmaster/dto/UserDTO.class
 com/taskmaster/dto/BuildingDTO.class
+com/taskmaster/service/BuildingProductionScheduler.class
 com/taskmaster/service/GamificationService.class
 com/taskmaster/model/CityMembership$Role.class
 com/taskmaster/model/User$UserBuilder.class

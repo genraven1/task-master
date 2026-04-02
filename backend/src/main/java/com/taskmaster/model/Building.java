@@ -40,6 +40,16 @@ public class Building {
         return level * 100;
     }
 
+    /**
+     * Resources produced automatically each day.
+     * Each building type feeds one city resource pool; the daily yield
+     * scales linearly with level so higher-level buildings are meaningfully
+     * more productive (level 1 = 10/day … level 5 = 50/day).
+     */
+    public int getDailyProduction() {
+        return level * 10;
+    }
+
     public enum BuildingType {
         FARM,        // food
         LUMBERMILL,  // wood
