@@ -45,6 +45,19 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            // Return 401 (not 403) for unauthenticated requests so the frontend
+            // auth handler triggers and redirects the user to the login page.
+            // Without this, Spring Security's default Http403ForbiddenEntryPoint
+            // fires for anonymous users, which the client does not treat as an
+            // auth error (it only watches for 401).
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) ->
+                    response.sendError(
+                        jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED,
+                        authException.getMessage()
+                    )
+                )
+            )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .headers(headers -> headers

@@ -20,5 +20,12 @@ export default defineConfig({
   preview: {
     host: true,
     port: 5173,
+    // Mirror the dev proxy so `vite preview` also works from LAN devices.
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
   },
 })
